@@ -1,6 +1,6 @@
 module.exports = {
   publish: (data) => {
-    console.log(data);
+    
   },
   name: 'delayCounter',
   getChartData: () => {

@@ -3,11 +3,11 @@ const express = require('express');
 const analyzer = require('./analyzer');
 const app = express();
 
-// middle ware added
+// middleware added
 app.use(analyzer());
 
 let i = 0;
-app.get('/', (req, res) => {
+app.get('*', (req, res) => {
   res.send(`Hello, World! at ${i++}`);
 })
 

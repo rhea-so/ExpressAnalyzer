@@ -1,16 +1,25 @@
+const requestData = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+setInterval(() => {
+  requestData.unshift(0);
+  requestData.pop();
+}, 5000);
+
 module.exports = {
   publish: (data) => {
-    console.log(data);
+    requestData[0]++;
   },
   name: 'requestCounter',
   getChartData: () => {
       return {
-        type: 'horizontalBar',
+        type: 'line',
         data: {
           labels: ['05', '10', '15', '20', '25', '30', '35', '40', '45', '50', '55', '60'],
           datasets: [{
             label: '5분 당 총 요청 수',
-            data: [1,2,3,4]
+            data: requestData,
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            fill: false
           }]
         },
 
@@ -19,7 +28,8 @@ module.exports = {
           scales: {
             yAxes: [{
               ticks: {
-                beginAtZero:true
+                beginAtZero:true,
+                precision: 0
               }
             }]
           }

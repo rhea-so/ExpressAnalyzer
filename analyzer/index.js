@@ -1,21 +1,14 @@
-console.log('Analyzer started');
+console.log('Express Analyzer started');
 
-// #region Variables init
-const rawData = [];
-const observer = [];
-// #endregion
+const observer = [
+  require('./chart/requestCounter'),
+  require('./chart/delayCounter')
+];
 
-// #region Chart Load
-observer.push(require('./chart/requestCounter'));
-observer.push(require('./chart/delayCounter'));
-observer.push(require('./chart/routerUsage'));
-// #endregion
-
-// #region Make Response Data
 function scripts() {
   let html = '';
   for (const item of observer) {
-    html += `new Chart(document.getElementById('${item.name}').getContext('2d'), ${JSON.stringify(item.getChartData())})\n`;
+      html += `new Chart(document.getElementById('${item.name}').getContext('2d'), ${JSON.stringify(item.getChartData())})\n`;
   }
   
   return html;
@@ -24,37 +17,76 @@ function scripts() {
 function canvas() {
   let html = '';
   for (const item of observer) {
-    html += `<canvas id="${item.name}"></canvas><br/>\n`;
+    html += `
+    <div class="card">
+        <canvas id="${item.name}">
+        </canvas>
+    </div>
+    <br/>`;
   }
   
   return html;
 }
-// #endregion
 
-// #region HTML Response
 module.exports = function () { 
   return (req, res, next) => {
     try {
+      // Want to watch Analyzer site
       if (req.url === '/analyzer') {
         res.contentType('text/html');
         res.send(`
-            <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
-            <div style="width:500px">
+            <html>            
+            <head>
+                <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+                <style type="text/css">
+                    @import url(//fonts.googleapis.com/earlyaccess/nanumgothic.css);
+                    * {
+                      font-family: 'Nanum Gothic', sans-serif;
+                    }
+                    html, body {
+                      height: 100%;
+                      background-color: #eee;
+                    }
+                    
+                    .card {
+                        box-sizing: border-box;
+                        min-width: 200px;
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 10px;
+                        background-color: white;
+                        border: 1px solid #aaa;
+                    }
+                    
+                    .footer {
+                        font-size: 10px;
+                        text-align: center;
+                    }
+                </style>
+            </head>
+            
+            <body>
               ${canvas()}
-            </div>
+            <div class="footer">
+                Developed by JeongHyeon Kim
+              </div>
+            </body>
+
             <script>
              ${scripts()}
-            </script>
+          </script>
+            </html>
         `);
         return;
       }
      
+     // Other case
       const startTime = Date.now();      
       res.on('finish', () => {
           for(const item of observer) {
             item.publish({
               date : Date.now(),
-              time : Date.now() - startTime,
+              delay : Date.now() - startTime,
               url : req.url,
               method : req. method,
               ip : req.headers['x-forwarded-for'] || req.connection.remoteAddress
@@ -68,4 +100,3 @@ module.exports = function () {
     }
   }
 }
-// #endregion
