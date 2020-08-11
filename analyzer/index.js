@@ -2,7 +2,8 @@ console.log('Express Analyzer started');
 
 const observer = [
   require('./chart/requestCounter'),
-  require('./chart/delayCounter')
+  require('./chart/delayCounter'),
+  require('./chart/routerUsage')
 ];
 
 function scripts() {
